@@ -74,6 +74,13 @@
 
 #define AUDIO_OFFLOAD_CODEC_VORBIS_BITSTREAM_FMT "music_offload_vorbis_bitstream_fmt"
 
+#define AUDIO_PARAMETER_KEY_SMARTPA_CAL "smartpa_cal"
+#define AUDIO_PARAMETER_KEY_SMARTPA_F0 "smartpa_f0"
+#define AUDIO_PARAMETER_KEY_SMARTPA_mtp "smartpa_mtp"
+#define AUDIO_PARAMETER_KEY_LOOPBACK_TEST "loopback_test"
+#define AUDIO_PARAMETER_KEY_HAL_PCM "hal_pcm"
+#define AUDIO_PARAMETER_KEY_FTM_RCV_SWAP "ftm_rcv_swap"
+
 /* Query handle fm parameter*/
 #define AUDIO_PARAMETER_KEY_HANDLE_FM "handle_fm"
 

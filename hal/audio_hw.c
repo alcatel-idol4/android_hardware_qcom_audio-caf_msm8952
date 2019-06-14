@@ -73,6 +73,12 @@
 #include "sound/compress_params.h"
 #include "sound/asound.h"
 
+extern int exTfa98xx_speakeron(int);
+extern void exTfa98xx_speakeroff();
+extern int tfa98xx_ftm_calibration();
+extern int tfa9897_speaker_resonance(int);
+extern void exTfa98xx_force_clear_MTPEX();
+
 #define COMPRESS_OFFLOAD_NUM_FRAGMENTS 4
 /*DIRECT PCM has same buffer sizes as DEEP Buffer*/
 #define DIRECT_PCM_NUM_FRAGMENTS 2
@@ -654,6 +660,66 @@ int enable_snd_device(struct audio_device *adev,
         audio_extn_dev_arbi_acquire(snd_device);
         amplifier_enable_devices(snd_device, true);
         audio_route_apply_and_update_path(adev->audio_route, device_name);
+
+	ALOGE("%s: snd device is %d\n", __func__, snd_device);
+
+	switch (snd_device) {
+
+		case 1:
+			// enable this to swap speaker output apparently
+			if (*(int *)(adev + 0x1c8) == 0) {
+				exTfa98xx_speakeron(3);
+			}
+			else {
+				ALOGE("%s: ftm_rcv_swap is on, swap top to btm", __func__);
+				exTfa98xx_speakeron(4);
+			}
+			break;
+		case 2:
+		case 0xb:
+			// Speaker
+			exTfa98xx_speakeron(0);
+			break;
+		case 0xf:
+			if (*(int *)(adev + 0x1c8) == 0) {
+				exTfa98xx_speakeron(8);
+			}
+			else {
+				ALOGE("%s: ftm_rcv_swap is on, swap top to btm", __func__);
+				exTfa98xx_speakeron(9);
+			}
+			break;
+		case 0x10:
+		case 0x11:
+		case 0x12:
+			exTfa98xx_speakeron(5);
+			break;
+		case 0x2e:
+		case 0x2f:
+		case 0x32:
+		case 0x33:
+			exTfa98xx_speakeron(9);
+			break;
+		case 0x30:
+			if (*(int *)(adev + 0x1c8) == 0) {
+				exTfa98xx_speakeron(3);
+			}
+			else {
+				ALOGE("%s: ftm_rcv_swap is on, swap top to btm", __func__);
+				exTfa98xx_speakeron(3);
+			}
+			break;
+		case 0x34:
+			// Speaker
+			exTfa98xx_speakeron(0);
+			break;
+		case 0x35:
+			exTfa98xx_speakeron(5);
+			break;
+		default:
+			exTfa98xx_speakeron(8);
+			break;
+	}
     }
     return 0;
 }
@@ -710,6 +776,8 @@ int disable_snd_device(struct audio_device *adev,
                                         ST_EVENT_SND_DEVICE_FREE);
         audio_extn_listen_update_device_status(snd_device,
                                         LISTEN_EVENT_SND_DEVICE_FREE);
+
+	exTfa98xx_speakeroff();
     }
 
     return 0;
@@ -3494,6 +3562,12 @@ static void close_compress_sessions(struct audio_device *adev)
     pthread_mutex_unlock(&adev->lock);
 }
 
+void tct_extern_set_parameters(struct audio_device *adev __unused,
+			       struct str_parms *parms __unused)
+{
+	ALOGE("%s: Z", __func__);
+}
+
 static int adev_set_parameters(struct audio_hw_device *dev, const char *kvpairs)
 {
     struct audio_device *adev = (struct audio_device *)dev;
@@ -3615,8 +3689,14 @@ static int adev_set_parameters(struct audio_hw_device *dev, const char *kvpairs)
         }
     }
 
+    //tct_extern_set_parameter(adev, parms);
+
     audio_extn_set_parameters(adev, parms);
     amplifier_set_parameters(parms);
+
+    //tfa98xx_ftm_calibration();
+    //tfa9897_speaker_resonance(0);
+    //exTfa98xx_force_clear_MTPEX();
 
 done:
     str_parms_destroy(parms);
