@@ -1904,12 +1904,48 @@ void platform_add_backend_name(char *mixer_path, snd_device_t snd_device,
         return;
     }
 
-    const char * suffix = backend_table[snd_device];
+    ALOGE("%s: b4 idol4 suffix %d", __func__, snd_device);
 
-    if (suffix != NULL) {
-        strlcat(mixer_path, " ", MIXER_PATH_MAX_LENGTH);
-        strlcat(mixer_path, suffix, MIXER_PATH_MAX_LENGTH);
+    const char * suffix;
+
+    switch (snd_device) {
+
+	case 1:
+	case 0xf:
+	case 0x1e:
+	case 0x2e:
+	case 0x2f:
+	case 0x30:
+	case 0x31:
+	case 0x32:
+	case 0x33:
+		suffix = "handset";
+		break;
+	case 2:
+	case 0x10:
+	case 0x11:
+	case 0x12:
+	case 0x34:
+		suffix = "speaker";
+		break;
+	case 9:
+	case 0x15:
+	case 0x1c:
+	case 0x36:
+	case 0x37:
+		suffix = "headphone";
+		break;
+	default:
+		// fallback to speaker...
+		suffix = "speaker";
+		break;
+
     }
+
+    ALOGE("%s: after idol4 suffix %s", __func__, suffix);
+
+    strlcat(mixer_path, " ", MIXER_PATH_MAX_LENGTH);
+    strlcat(mixer_path, suffix, MIXER_PATH_MAX_LENGTH);
 }
 
 int platform_get_pcm_device_id(audio_usecase_t usecase, int device_type)

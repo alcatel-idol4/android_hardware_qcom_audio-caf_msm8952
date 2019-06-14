@@ -244,7 +244,8 @@ LOCAL_SHARED_LIBRARIES := \
         libaudioroute \
         libdl \
         libaudioutils \
-        libexpat
+        libexpat \
+	libtfa9890
 
 LOCAL_C_INCLUDES += \
         external/expat/lib \
