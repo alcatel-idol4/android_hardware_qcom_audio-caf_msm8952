@@ -1936,10 +1936,16 @@ void platform_add_backend_name(char *mixer_path, snd_device_t snd_device,
 		suffix = "headphone";
 		break;
 	default:
-		// fallback to speaker...
+		// fallback to speaker for now...
 		suffix = "speaker";
 		break;
 
+    }
+
+    if (strcmp(mixer_path, "audio-record") == 0) {
+	ALOGE("%s: recording audio no need for selecting a device", __func__);
+	suffix = NULL;
+	return;
     }
 
     ALOGE("%s: after idol4 suffix %s", __func__, suffix);
