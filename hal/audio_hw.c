@@ -547,58 +547,44 @@ int enable_snd_device(struct audio_device *adev,
 
 	switch (snd_device) {
 
-		case 1:
-			// enable this to swap speaker output apparently
-			if (*(int *)(adev + 0x1c8) == 0) {
-				exTfa98xx_speakeron(3);
-			}
-			else {
-				ALOGE("%s: ftm_rcv_swap is on, swap top to btm", __func__);
-				exTfa98xx_speakeron(4);
-			}
+		case SND_DEVICE_OUT_HANDSET:
+			exTfa98xx_speakeron(4);
 			break;
-		case 2:
-		case 0xb:
-			// Speaker
+		case SND_DEVICE_OUT_SPEAKER:
+		case SND_DEVICE_OUT_SPEAKER_AND_HEADPHONES:
 			exTfa98xx_speakeron(0);
 			break;
-		case 0xf:
-			if (*(int *)(adev + 0x1c8) == 0) {
+		case SND_DEVICE_OUT_VOICE_HANDSET:
 				exTfa98xx_speakeron(8);
-			}
-			else {
-				ALOGE("%s: ftm_rcv_swap is on, swap top to btm", __func__);
-				exTfa98xx_speakeron(9);
-			}
-			break;
-		case 0x10:
-		case 0x11:
-		case 0x12:
+				break;
+		case SND_DEVICE_OUT_VOICE_SPEAKER:
+		case SND_DEVICE_OUT_VOICE_SPEAKER_WSA:
+		case SND_DEVICE_OUT_VOICE_SPEAKER_VBAT:
 			exTfa98xx_speakeron(5);
 			break;
 		case 0x2e:
 		case 0x2f:
 		case 0x32:
 		case 0x33:
+			ALOGE("idk whats going on with speakeron(9), handset probably");
 			exTfa98xx_speakeron(9);
 			break;
 		case 0x30:
-			if (*(int *)(adev + 0x1c8) == 0) {
-				exTfa98xx_speakeron(3);
-			}
-			else {
-				ALOGE("%s: ftm_rcv_swap is on, swap top to btm", __func__);
-				exTfa98xx_speakeron(3);
-			}
+			ALOGE("should be handset, correct?");
+			exTfa98xx_speakeron(3);
 			break;
-		case 0x34:
+#if 0
+		case SND_DEVICE_OUT_VOIP_SPEAKER:
 			// Speaker
 			exTfa98xx_speakeron(0);
 			break;
+#endif
 		case 0x35:
+			ALOGE("no fucking idea, VOIP??");
 			exTfa98xx_speakeron(5);
 			break;
 		default:
+			ALOGE("default...");
 			exTfa98xx_speakeron(8);
 			break;
 	}
