@@ -583,6 +583,9 @@ int enable_snd_device(struct audio_device *adev,
 			ALOGE("no fucking idea, VOIP??");
 			exTfa98xx_speakeron(5);
 			break;
+		case SND_DEVICE_OUT_HEADPHONES:
+			exTfa98xx_speakeron(8);
+			break;
 		default:
 			ALOGE("default...");
 			exTfa98xx_speakeron(8);
