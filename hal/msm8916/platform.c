@@ -1880,33 +1880,39 @@ void platform_add_backend_name(char *mixer_path, snd_device_t snd_device,
 
     switch (snd_device) {
 
-	case 1:
-	case 0xf:
-	case 0x1e:
-	case 0x2e:
-	case 0x2f:
-	case 0x30:
-	case 0x31:
-	case 0x32:
-	case 0x33:
+	case SND_DEVICE_OUT_HANDSET:
+	case SND_DEVICE_OUT_VOICE_HANDSET:
+	case SND_DEVICE_OUT_VOICE_TTY_HCO_HANDSET:
+	case SND_DEVICE_OUT_ANC_HANDSET:
 		suffix = "handset";
 		break;
-	case 2:
-	case 0x10:
-	case 0x11:
-	case 0x12:
-	case 0x34:
+	case SND_DEVICE_OUT_SPEAKER:
+	case SND_DEVICE_OUT_VOICE_SPEAKER:
+	case SND_DEVICE_OUT_VOICE_SPEAKER_WSA:
+	case SND_DEVICE_OUT_VOICE_SPEAKER_VBAT:
+	//case SND_DEVICE_OUT_VOIP_SPEAKER:
+#if 0
+        case SND_DEVICE_OUT_VOICE_SPEAKER_VOIP:
+        case SND_DEVICE_OUT_VOICE_SPEAKER_AUDIO_RECORD:
+#endif
 		suffix = "speaker";
 		break;
-	case 9:
-	case 0x15:
-	case 0x1c:
-	case 0x36:
-	case 0x37:
+        case SND_DEVICE_OUT_HEADPHONES:
+	case SND_DEVICE_OUT_HEADPHONES_44_1:
+        case SND_DEVICE_OUT_VOICE_HEADPHONES:
+        case SND_DEVICE_OUT_VOICE_TTY_FULL_HEADPHONES:
+        case SND_DEVICE_OUT_VOICE_TTY_VCO_HEADPHONES:
+	//case SND_DEVICE_OUT_VOIP_HEADPHONES:
 		suffix = "headphone";
+		break;
+	case SND_DEVICE_OUT_SPEAKER_AND_HEADPHONES:
+	case SND_DEVICE_OUT_SPEAKER_AND_HEADPHONES_EXTERNAL_1:
+	case SND_DEVICE_OUT_SPEAKER_AND_HEADPHONES_EXTERNAL_2:
+		suffix = "speaker-and-headphones";
 		break;
 	default:
 		// fallback to speaker for now...
+		ALOGE("%s: %d: unknown snd_device for us!", __func__, __LINE__);
 		suffix = "speaker";
 		break;
 
