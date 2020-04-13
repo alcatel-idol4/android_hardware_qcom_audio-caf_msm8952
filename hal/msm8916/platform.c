@@ -1928,6 +1928,8 @@ void platform_add_backend_name(char *mixer_path, snd_device_t snd_device,
 
     strlcat(mixer_path, " ", MIXER_PATH_MAX_LENGTH);
     strlcat(mixer_path, suffix, MIXER_PATH_MAX_LENGTH);
+    
+    ALOGE("mixer after append %s", mixer_path);
 }
 
 int platform_get_pcm_device_id(audio_usecase_t usecase, int device_type)

@@ -53,6 +53,7 @@
 #include <dlfcn.h>
 #include <sys/resource.h>
 #include <sys/prctl.h>
+#include <unistd.h>
 
 #include <cutils/log.h>
 #include <cutils/str_parms.h>
@@ -96,6 +97,13 @@ extern void exTfa98xx_force_clear_MTPEX();
 #define USECASE_AUDIO_PLAYBACK_PRIMARY USECASE_AUDIO_PLAYBACK_DEEP_BUFFER
 #define PCM_CONFIG_AUDIO_PLAYBACK_PRIMARY pcm_config_deep_buffer
 #endif
+
+typedef enum {
+	SPEAKERON,
+	SPEAKEROFF
+} speaker_status;
+
+speaker_status spstatus = SPEAKERON;
 
 static unsigned int configured_low_latency_capture_period_size =
         LOW_LATENCY_CAPTURE_PERIOD_SIZE;
@@ -580,18 +588,18 @@ int disable_audio_route(struct audio_device *adev,
     if (usecase == NULL || usecase->id == USECASE_INVALID)
         return -EINVAL;
 
-    ALOGV("%s: enter: usecase(%d)", __func__, usecase->id);
+    ALOGE("%s: enter: usecase(%d)", __func__, usecase->id);
     if (usecase->type == PCM_CAPTURE)
         snd_device = usecase->in_snd_device;
     else
         snd_device = usecase->out_snd_device;
     strlcpy(mixer_path, use_case_table[usecase->id], MIXER_PATH_MAX_LENGTH);
     platform_add_backend_name(mixer_path, snd_device, usecase);
-    ALOGD("%s: reset and update mixer path: %s", __func__, mixer_path);
+    ALOGE("%s: reset and update mixer path: %s", __func__, mixer_path);
     audio_route_reset_and_update_path(adev->audio_route, mixer_path);
     audio_extn_sound_trigger_update_stream_status(usecase, ST_EVENT_STREAM_FREE);
     audio_extn_listen_update_stream_status(usecase, LISTEN_EVENT_STREAM_FREE);
-    ALOGV("%s: exit", __func__);
+    ALOGE("%s: exit", __func__);
     return 0;
 }
 
@@ -663,6 +671,11 @@ int enable_snd_device(struct audio_device *adev,
 
 	ALOGE("%s: snd device is %d\n", __func__, snd_device);
 
+	if (spstatus == SPEAKERON) {
+		ALOGE("%s: dont need to power on speaker, already on", __func__);
+		return 0;
+	}
+
 	switch (snd_device) {
 
 		case SND_DEVICE_OUT_HANDSET:
@@ -710,6 +723,7 @@ int enable_snd_device(struct audio_device *adev,
 			break;
 	}
     }
+    spstatus = SPEAKERON;
     return 0;
 }
 
@@ -766,7 +780,11 @@ int disable_snd_device(struct audio_device *adev,
         audio_extn_listen_update_device_status(snd_device,
                                         LISTEN_EVENT_SND_DEVICE_FREE);
 
-	exTfa98xx_speakeroff();
+	if (spstatus == SPEAKERON) {
+		exTfa98xx_speakeroff();
+		spstatus = SPEAKEROFF;
+	}
+	ALOGE("dont need to speakeroff");
     }
 
     return 0;
@@ -2840,6 +2858,16 @@ static int in_standby(struct audio_stream *stream)
     int status = 0;
     ALOGD("%s: enter: stream (%p) usecase(%d: %s)", __func__,
           stream, in->usecase, use_case_table[in->usecase]);
+          
+    if (!strcmp(use_case_table[in->usecase], "audio-record")){
+    	ALOGE("%s: about to record audio, disable tfa89xx and sleep a bit (200ms)", __func__);
+    	if (spstatus == SPEAKERON) {
+    		exTfa98xx_speakeroff();
+    		spstatus = SPEAKEROFF;
+    		usleep(2000 * 1000);
+    	}
+    	ALOGE("dont need to speakeroff");
+    }
 
     lock_input_stream(in);
     if (!in->standby && in->is_st_session) {
