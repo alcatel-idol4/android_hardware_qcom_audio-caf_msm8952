@@ -2060,7 +2060,7 @@ static bool output_drives_call(struct audio_device *adev, struct stream_out *out
 
 // note: this call is safe only if the stream_cb is
 // removed first in close_output_stream (as is done now).
-static void out_snd_mon_cb(void * stream, struct str_parms * parms)
+static void __unused out_snd_mon_cb(void * stream, struct str_parms * parms)
 {
     if (!stream || !parms)
         return;
@@ -2488,7 +2488,7 @@ exit:
 
     if (ret != 0) {
         if (out->pcm)
-            ALOGE("%s: error %zd - %s", __func__, ret, pcm_get_error(out->pcm));
+            ALOGE("%s: error %ld - %s", __func__, ret, pcm_get_error(out->pcm));
         if (out->usecase == USECASE_COMPRESS_VOIP_CALL) {
             pthread_mutex_lock(&adev->lock);
             voice_extn_compress_voip_close_output_stream(&out->stream.common);
@@ -2828,7 +2828,7 @@ static int in_dump(const struct audio_stream *stream __unused,
     return 0;
 }
 
-static void in_snd_mon_cb(void * stream, struct str_parms * parms)
+static void __unused in_snd_mon_cb(void * stream, struct str_parms * parms)
 {
     if (!stream || !parms)
         return;
@@ -4019,7 +4019,7 @@ static int period_size_is_plausible_for_low_latency(int period_size)
     }
 }
 
-static void adev_snd_mon_cb(void *cookie, struct str_parms *parms)
+static void __unused adev_snd_mon_cb(void *cookie, struct str_parms *parms)
 {
     bool is_snd_card_status = false;
     bool is_ext_device_status = false;

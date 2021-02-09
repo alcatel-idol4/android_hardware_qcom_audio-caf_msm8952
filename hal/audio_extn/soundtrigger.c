@@ -76,7 +76,7 @@ get_sound_trigger_info(int capture_handle)
     return NULL;
 }
 
-static void stdev_snd_mon_cb(void * stream __unused, struct str_parms * parms)
+static void __unused stdev_snd_mon_cb(void * stream __unused, struct str_parms * parms)
 {
     if (!parms)
         return;
